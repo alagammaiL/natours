@@ -10,6 +10,7 @@ const bookingRouter = require('./Routes/BookingRoutes');
 const errorController = require('./CONTROLLERMVC/errorController');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -24,6 +25,16 @@ app.set('views', path.join(__dirname, 'views'));
 //middleware serving static files
 // app.use(express.static(`${__dirname}/public`));
 app.enable('trust proxy');
+app.use(cors());
+//Access-Control-Allow-Origin * =>allow origin to acccess
+//api.natours.com natours.com(front end)
+// app.use(
+//   cors({
+//     origin: 'https://www.natours.com',
+//   }),
+// );
+app.options('*', cors());
+// app.options('/api/v1/tours:id', cors());
 app.use(express.static(path.join(__dirname, 'public')));
 //global middleware
 //set security http headers middleware
