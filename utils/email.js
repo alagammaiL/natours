@@ -10,10 +10,10 @@ module.exports = class Email {
     this.firstName = user.name.split(' ')[0];
   }
   newTransport() {
-    console.log(process.env.NODE_ENV);
+    // console.log(process.env.NODE_ENV);
     if (process.env.NODE_ENV !== 'development') {
       //use sendgrid
-      console.log('entering here');
+      // console.log('entering here');
       return nodemailer.createTransport({
         service: 'SendGrid',
         auth: {
@@ -36,8 +36,8 @@ module.exports = class Email {
   //send the actual email
   async send(template, subject) {
     //1)render Html based on pug template
-    console.log(`dirname eemail js`, __dirname);
-    console.log('hello', this.firstName, this.url, subject);
+    // console.log(`dirname eemail js`, __dirname);
+    // console.log('hello', this.firstName, this.url, subject);
     const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
       firstName: this.firstName,
       url: this.url,

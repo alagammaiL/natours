@@ -61,7 +61,7 @@ exports.signIn = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 exports.protect = catchAsync(async (req, res, next) => {
-  console.log('entering here in auth');
+  // console.log('entering here in auth');
   //1)getting token and check if the token is there
   let token;
   if (
@@ -69,10 +69,10 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-    console.log('token from header', token);
+    // console.log('token from header', token);
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
-    console.log('token from cookie', token);
+    // console.log('token from cookie', token);
   }
   if (!token) {
     return next(new Apperror('please try to sign in ', 401));
@@ -96,7 +96,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   //grant access to protected route
   req.user = freshUser;
   res.locals.user = freshUser;
-  console.log(req.user.id);
+  // console.log(req.user.id);
   next();
 });
 //Only for render pages ,not for error
@@ -175,7 +175,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       message: 'token sent to email',
     });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     user.resetToken = undefined;
     user.resetTokenExpireTime = undefined;
     await user.save({ validateBeforeSave: false });

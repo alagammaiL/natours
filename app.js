@@ -16,6 +16,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const viewRouter = require('./Routes/ViewRoutes');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compression = require('compression');
 console.log('dirname', __dirname);
 //console.log(process.env.NODE_ENV);
 app.set('view engine', 'pug');
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
   res.removeHeader('Content-Security-Policy');
   next();
 });
+app.use(compression());
 //development logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

@@ -4,9 +4,9 @@ async function logoutFunction() {
   try {
     const response = await axios({
       method: 'GET',
-      url: 'http://127.0.0.1:8000/api/v1/users/log-out',
+      url: '/api/v1/users/log-out',
     });
-    console.log(response);
+    // console.log(response);
     if (response.data.status === 'success') {
       location.reload(true);
     }

@@ -4,8 +4,8 @@ export const updateUserData = async (data, type) => {
   console.log('hello');
   let url =
     type === 'password'
-      ? 'http://127.0.0.1:8000/api/v1/users/update-password'
-      : 'http://127.0.0.1:8000/api/v1/users/updateMe';
+      ? '/api/v1/users/update-password'
+      : '/api/v1/users/updateMe';
   // console.log(data);
   try {
     const response = await axios({
