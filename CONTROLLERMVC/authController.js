@@ -14,7 +14,7 @@ function signJWT(id) {
   });
   return token;
 }
-function createSendToken(user, statusCode, res) {
+function createSendToken(user, statusCode, req, res) {
   const token = signJWT(user._id);
   const cookieOptions = {
     expires: new Date(
@@ -23,11 +23,12 @@ function createSendToken(user, statusCode, res) {
     ),
     // secure: true,
     httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
   };
   res.cookie('jwt', token, cookieOptions);
   //password removed only from display to client
   user.password = undefined;
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -42,7 +43,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
   console.log(url);
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 exports.signIn = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;

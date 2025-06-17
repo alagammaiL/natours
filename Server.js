@@ -60,3 +60,9 @@ process.on('unhandledRejection', (err) => {
     process.exit(1);
   });
 });
+process.on('SIGTERM', () => {
+  console.log('receiving sigterm signal');
+  server.close(() => {
+    console.log('all process will terminated');
+  });
+});
