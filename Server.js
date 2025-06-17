@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const Review = require('./Model/ReviewModel');
 process.on('uncaughtException', (err) => {
-  // console.log('hello', err.name, err.message);
+  console.log('hello', err.name, err.message);
   console.log('uncaughtException');
 
   process.exit(1);
@@ -12,7 +12,7 @@ async function fixReviewIndex() {
   try {
     // Drop old index if it exists
     await Review.collection.dropIndex({ tour: 1, user: 1 });
-    // console.log('Old (possibly non-unique) index dropped');
+    console.log('Old (possibly non-unique) index dropped');
   } catch (err) {
     if (err.codeName === 'IndexNotFound') {
       console.log('Index not found, skipping drop');
@@ -30,19 +30,18 @@ async function fixReviewIndex() {
   }
 }
 dotenv.config({ path: './config.env' });
-// console.log(process.env);
+console.log(process.env);
 const app = require('./app');
 const DB = process.env.DATABASE.replace(
   '<db_password>',
   process.env.DATABASE_PASSWORD,
 );
-// console.log(process.env.DATABASE);
+console.log(process.env.DATABASE);
 // connecting to atlas
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
+    useUnifiedTopology: true,
   })
   .then(() => {
     console.log('db connected successfully');
@@ -55,8 +54,8 @@ const server = app.listen(port, () => {
 });
 
 process.on('unhandledRejection', (err) => {
-  // console.log('hello', err.name);
-  // console.log('unhandledrejection');
+  console.log('hello', err.name);
+  console.log('unhandledrejection');
   server.close(() => {
     process.exit(1);
   });
