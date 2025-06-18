@@ -59,6 +59,9 @@ app.post(
 );
 
 app.use(express.json({ limit: '10kb' })); //middleware
+console.log('🟢 Stripe webhook route HIT', process.env.STRIPE_WEBHOOK_SECRET);
+console.log('Headers:', req.headers);
+console.log('Raw body:', req.body);
 app.use(cookieParser());
 //1)data sanitization against nosql query injection
 app.use(mongoSanitize());
