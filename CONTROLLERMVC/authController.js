@@ -59,7 +59,7 @@ exports.signIn = catchAsync(async (req, res, next) => {
     return next(new Apperror('incorrect email and password', 401));
   }
   //3)if everything ok send token to client
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 exports.protect = catchAsync(async (req, res, next) => {
   // console.log('entering here in auth');
@@ -211,7 +211,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
   //3)update changePasswordAt property for the user
   //4)Log the user in send JWT
-  createSendToken(user, 201, res);
+  createSendToken(user, 201, req, res);
 });
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const { password, passwordConfirm, currentPassword } = req.body;
@@ -229,5 +229,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = passwordConfirm;
   await user.save();
   //4)log user in send jwt
-  createSendToken(user, 201, res);
+  createSendToken(user, 201, req, res);
 });
