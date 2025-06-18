@@ -13,8 +13,8 @@ const {
 } = require('./../CONTROLLERMVC/bookingController');
 const router = express.Router();
 
-// router.get('/', createBookingCheckout, LoggedInOrNot, overview);
-router.get('/', LoggedInOrNot, overview);
+router.get('/', createBookingCheckout, LoggedInOrNot, overview);
+// router.get('/', LoggedInOrNot, overview);
 router.get('/login', LoggedInOrNot, login);
 router.get('/tour/:slug', LoggedInOrNot, tour);
 router.get('/myAccount', protect, getMyAccount);

@@ -52,11 +52,11 @@ if (process.env.NODE_ENV === 'development') {
 }
 //body parser,reading data from body to req.body
 //allow to parse the request less than 10kb
-app.post(
-  '/webhook-checkout',
-  express.raw({ type: 'application/json' }),
-  BookingController.webhookCheckout,
-);
+// app.post(
+//   '/webhook-checkout',
+//   express.raw({ type: 'application/json' }),
+//   BookingController.webhookCheckout,
+// );
 
 app.use(express.json({ limit: '10kb' })); //middleware
 console.log('🟢 Stripe webhook route HIT', process.env.STRIPE_WEBHOOK_SECRET);
