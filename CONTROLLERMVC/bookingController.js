@@ -12,6 +12,7 @@ const {
   getOneFactory,
 } = require('./../CONTROLLERMVC/buildFactory');
 const User = require('../Model/userModel');
+const ErrorApp = require('./../utils/appError');
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   //1) get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
@@ -67,8 +68,19 @@ async function createBookingCheckout(session) {
 }
 exports.webhookCheckout = async (req, res, next) => {
   const signature = req.headers['stripe-signature'];
-  console.log('🔔 Webhook hit!');
+  console.log('🔔 Webhook hit!', process.env.STRIPE_WEBHOOK_SECRET);
   let event;
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    // throw new Error(
+    //   'STRIPE_WEBHOOK_SECRET is undefined. Check Railway and redeploy.',
+    // );
+    return next(
+      new ErrorApp(
+        'STRIPE_WEBHOOK_SECRET is undefined. Check Railway and redeploy.',
+        400,
+      ),
+    );
+  }
   try {
     event = stripe.webhooks.constructEvent(
       req.body,
@@ -84,8 +96,16 @@ exports.webhookCheckout = async (req, res, next) => {
 
     res.status(200).json({ received: true });
   } catch (err) {
-    console.error('❌ Webhook Error:', err.message);
-    res.status(400).send(`webhook error ${err.message}`);
+    console.error(
+      '❌ Webhook Error:',
+      err.message,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+    res
+      .status(400)
+      .send(
+        `webhook error ${err.message} ${process.env.STRIPE_WEBHOOK_SECRET}`,
+      );
   }
 };
 exports.getBooking = getAllFactory(Booking);
