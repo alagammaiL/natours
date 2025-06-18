@@ -58,13 +58,16 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 //   res.redirect(req.originalUrl.split('?')[0]);
 // });
 async function createBookingCheckout(session) {
+  console.log('❤️ entering createBookingCheckout');
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
   const price = session.metadata?.price;
+  console.log('price,tour,user', price, tour, user);
   await Booking.create({ user, tour, price });
 }
 exports.webhookCheckout = async (req, res, next) => {
   const signature = req.headers['stripe-signature'];
+  console.log('🔔 Webhook hit!');
   let event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -72,6 +75,7 @@ exports.webhookCheckout = async (req, res, next) => {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
+    console.log('✅ Event verified:', event.type);
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       // Do something with session
@@ -80,6 +84,7 @@ exports.webhookCheckout = async (req, res, next) => {
 
     res.status(200).json({ received: true });
   } catch (err) {
+    console.error('❌ Webhook Error:', err.message);
     res.status(400).send(`webhook error ${err.message}`);
   }
 };
