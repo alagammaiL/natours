@@ -25,6 +25,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
+    metadata: {
+      price: tour.price,
+    },
     line_items: [
       {
         price_data: {
@@ -57,7 +60,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 async function createBookingCheckout(session) {
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.line_items[0].price_data.unit_amount / 100;
+  const price = session.metadata?.price;
   await Booking.create({ user, tour, price });
 }
 exports.webhookCheckout = async (req, res, next) => {
@@ -77,7 +80,7 @@ exports.webhookCheckout = async (req, res, next) => {
 
     res.status(200).json({ received: true });
   } catch (err) {
-    res.status(400).send(`webhook error ${err.msg}`);
+    res.status(400).send(`webhook error ${err.message}`);
   }
 };
 exports.getBooking = getAllFactory(Booking);
