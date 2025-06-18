@@ -23,7 +23,7 @@ function createSendToken(user, statusCode, req, res) {
     ),
     // secure: true,
     httpOnly: true,
-    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    secure: req?.secure || req?.headers?.['x-forwarded-proto'] === 'https',
   };
   res.cookie('jwt', token, cookieOptions);
   //password removed only from display to client
