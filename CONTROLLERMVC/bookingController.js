@@ -11,6 +11,7 @@ const {
   getAllFactory,
   getOneFactory,
 } = require('./../CONTROLLERMVC/buildFactory');
+const User = require('../Model/userModel');
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   //1) get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
@@ -19,7 +20,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'payment', // ✅ REQUIRED when using price_data
-    success_url: `${req.protocol}://${req.get('host')}/?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`,
+    // success_url: `${req.protocol}://${req.get('host')}/?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`,
+    success_url: `${req.protocol}://${req.get('host')}/tour`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
@@ -45,14 +47,39 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-  //this is only temporary bcoz unsecure everyone can make bookings without payment
-  const { user, tour, price } = req.query;
-  if (!user && !tour && !price) return next();
+// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+//   //this is only temporary bcoz unsecure everyone can make bookings without payment
+//   const { user, tour, price } = req.query;
+//   if (!user && !tour && !price) return next();
+//   await Booking.create({ user, tour, price });
+//   res.redirect(req.originalUrl.split('?')[0]);
+// });
+async function createBookingCheckout(session) {
+  const tour = session.client_reference_id;
+  const user = (await User.findOne({ email: session.customer_email })).id;
+  const price = session.line_items[0].price_data.unit_amount / 100;
   await Booking.create({ user, tour, price });
-  res.redirect(req.originalUrl.split('?')[0]);
-});
+}
+exports.webhookCheckout = async (req, res, next) => {
+  const signature = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      // Do something with session
+      await createBookingCheckout(session);
+    }
 
+    res.status(200).json({ received: true });
+  } catch (err) {
+    res.status(400).send(`webhook error ${err.msg}`);
+  }
+};
 exports.getBooking = getAllFactory(Booking);
 exports.getOneBooking = getOneFactory(Booking);
 exports.createBooking = createFactory(Booking);
